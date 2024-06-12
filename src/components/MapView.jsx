@@ -1,6 +1,7 @@
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import { useState, useEffect } from "react";
 import "leaflet/dist/leaflet.css";
+import '../index.css'
 
 const MapComponent = ({ region, handleAddMarker }) => {
   const map = useMap();
@@ -94,17 +95,17 @@ const MapView = () => {
 
   return (
     <>
-      {console.log( "nnn",region)}
+      {console.log("nnn", region)}
       <MapContainer
         center={[region.latitude, region.longitude]}
-        zoom={13}
-        style={{ height: "100vh", width: "100%" }}
+        zoom={18}
+        style={{ height: "100vh", width: "100%", position: 'absolute', top: 0, left: 0 }}
         scrollWheelZoom={true}
         zoomControl={false}
+        className="map"
       >
         <TileLayer
           url="http://171.247.47.0/map/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
         <Marker position={[region.latitude, region.longitude]} />
         <MapComponent region={region} />
