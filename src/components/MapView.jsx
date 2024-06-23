@@ -7,7 +7,7 @@ const MapComponent = ({ region, handleAddMarker }) => {
   const map = useMap();
 
   useEffect(() => {
-    map.panTo([region.latitude, region.longitude], 13);
+    map.panTo([region.latitude, region.longitude], 20);
   }, [region]);
 
   return null;
@@ -15,8 +15,8 @@ const MapComponent = ({ region, handleAddMarker }) => {
 
 const MapView = () => {
   const [region, setRegion] = useState({
-    latitude: 21.0285,
     longitude: 105.8542,
+    latitude: 21.0285,
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   });
