@@ -15,7 +15,7 @@ const MapComponent = ({ region, handleAddMarker }) => {
 
 const MapView = () => {
   const [region, setRegion] = useState({
-    longitude: 105.8542,
+    longitude: 105.8540,
     latitude: 21.0285,
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
