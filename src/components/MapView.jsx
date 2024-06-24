@@ -43,7 +43,7 @@ const MapView = () => {
           const query = message.query;
           if (query) {
             const response = await fetch(
-              `http://171.247.1.173/nominatim/search?q=${query}&format=json`,
+              `http://171.247.51.237/nominatim/search?q=${query}&format=json`,
               {
                 method: "GET",
                 headers: { "Content-Type": "application/json" },
@@ -104,7 +104,7 @@ const MapView = () => {
         className="map"
       >
         <TileLayer
-          url="http://171.247.1.173/map/{z}/{x}/{y}.png"
+          url="http://171.247.51.237/map/{z}/{x}/{y}.png"
         />
         <Marker position={[region.latitude, region.longitude]} />
         <MapComponent region={region} />
