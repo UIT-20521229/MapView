@@ -1,17 +1,35 @@
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+/* eslint-disable react/prop-types */
+/* eslint-disable react-hooks/exhaustive-deps */
+import { MapContainer, TileLayer, Marker, useMap, Polyline } from "react-leaflet";
 import { useState, useEffect } from "react";
 import "leaflet/dist/leaflet.css";
-import '../index.css'
+import "../index.css";
 
-const MapComponent = ({ region, markerTo }) => {
+const MapComponent = ({ region, markerTo, setPoliLine }) => {
   const map = useMap();
-
   useEffect(() => {
     map.panTo([region.latitude, region.longitude], 20);
   }, [region]);
 
   useEffect(() => {
-    map.panTo([markerTo.latitude, markerTo.longitude], 20);
+    if (!markerTo) return;
+    const fetchRoute = async () => {
+      await fetch(`http://171.247.51.237:5000/route/v1/driving/${region.longitude},${region.latitude};${markerTo.longitude},${markerTo.latitude}?geometries=geojson&alternatives=true&overview=full`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          const { coordinates } = data.routes[0].geometry;
+          const newCoordinates = coordinates.map((coordinate) => [coordinate[1], coordinate[0]]);
+          setPoliLine(newCoordinates);
+        });
+    };
+    fetchRoute();
+    map.fitBounds([
+      [region.latitude, region.longitude],
+      [markerTo.latitude, markerTo.longitude],
+    ]);
   }, [markerTo]);
 
   return null;
@@ -19,39 +37,30 @@ const MapComponent = ({ region, markerTo }) => {
 
 const MapView = () => {
   const [region, setRegion] = useState({
-    longitude: 105.8540,
+    longitude: 105.854,
     latitude: 21.0285,
   });
-  const [markerTo, setMarkerTo] = useState({
-    longitude: 105.8540,
-    latitude: 21.0285,
-  });
+  const [markerTo, setMarkerTo] = useState(null);
+  const [poliLine, setPoliLine] = useState([]);
 
   useEffect(() => {
     const handleMessage = async (event) => {
-      console.log(region);
       try {
         const message = JSON.parse(event.data);
         if (message.type === "currentLocation") {
           const newRegion = {
             latitude: message.data.latitude,
             longitude: message.data.longitude,
-            latitudeDelta: message.data.latitudeDelta,
-            longitudeDelta: message.data.longitudeDelta,
           };
           console.log("handleCurrentLocation", newRegion);
           setRegion(newRegion);
-        }
-        else if (message.type === "searchLocation") {
+        } else if (message.type === "searchLocation") {
           const query = message.query;
           if (query) {
-            const response = await fetch(
-              `http://171.247.51.237/nominatim/search?q=${query}&format=json`,
-              {
-                method: "GET",
-                headers: { "Content-Type": "application/json" },
-              }
-            );
+            const response = await fetch(`http://171.247.51.237/nominatim/search?q=${query}&format=json`, {
+              method: "GET",
+              headers: { "Content-Type": "application/json" },
+            });
 
             if (response.status === 200) {
               const data = await response.json();
@@ -69,7 +78,7 @@ const MapView = () => {
                 // Set the new region
                 // setRegion(newRegion);
                 console.log("searchLocation", newRegion);
-                setMarkerTo(newRegion)
+                setMarkerTo(newRegion);
               } else {
                 console.error("No data returned from the API");
               }
@@ -97,19 +106,20 @@ const MapView = () => {
       <MapContainer
         center={[region.latitude, region.longitude]}
         zoom={18}
-        style={{ height: "100vh", width: "100%", position: 'absolute', top: 0, left: 0 }}
+        style={{ height: "100vh", width: "100%", position: "absolute", top: 0, left: 0 }}
         scrollWheelZoom={true}
         zoomControl={false}
         className="map"
       >
-        <TileLayer
-          url="http://171.247.51.237/map/{z}/{x}/{y}.png"
-        />
+        <TileLayer url="http://171.247.51.237/map/{z}/{x}/{y}.png" />
         <Marker position={[region.latitude, region.longitude]} />
         {markerTo && (
-          <Marker position={[markerTo.latitude, markerTo.longitude]} />
+          <>
+            <Marker position={[markerTo.latitude, markerTo.longitude]} />
+            <Polyline positions={poliLine} />
+          </>
         )}
-        <MapComponent region={region} markerTo={markerTo} />
+        <MapComponent region={region} markerTo={markerTo} setPoliLine={setPoliLine} />
       </MapContainer>
     </>
   );
