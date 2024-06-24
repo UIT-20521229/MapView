@@ -3,12 +3,16 @@ import { useState, useEffect } from "react";
 import "leaflet/dist/leaflet.css";
 import '../index.css'
 
-const MapComponent = ({ region, handleAddMarker }) => {
+const MapComponent = ({ region, markerTo }) => {
   const map = useMap();
 
   useEffect(() => {
     map.panTo([region.latitude, region.longitude], 20);
   }, [region]);
+
+  useEffect(() => {
+    map.panTo([markerTo.latitude, markerTo.longitude], 20);
+  }, [markerTo]);
 
   return null;
 };
@@ -17,13 +21,11 @@ const MapView = () => {
   const [region, setRegion] = useState({
     longitude: 105.8540,
     latitude: 21.0285,
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0421,
   });
-
-  useEffect(() => {
-    console.log("new Region", region);
-  }, [region]);
+  const [markerTo, setMarkerTo] = useState({
+    longitude: 105.8540,
+    latitude: 21.0285,
+  });
 
   useEffect(() => {
     const handleMessage = async (event) => {
@@ -39,7 +41,8 @@ const MapView = () => {
           };
           console.log("handleCurrentLocation", newRegion);
           setRegion(newRegion);
-        } else if (message.type === "searchLocation") {
+        }
+        else if (message.type === "searchLocation") {
           const query = message.query;
           if (query) {
             const response = await fetch(
@@ -61,12 +64,12 @@ const MapView = () => {
                 const newRegion = {
                   latitude: lat,
                   longitude: lon,
-                  latitudeDelta: 0.0922,
-                  longitudeDelta: 0.0421,
                 };
 
                 // Set the new region
-                setRegion(newRegion);
+                // setRegion(newRegion);
+                console.log("searchLocation", newRegion);
+                setMarkerTo(newRegion)
               } else {
                 console.error("No data returned from the API");
               }
@@ -87,11 +90,7 @@ const MapView = () => {
     return () => {
       window.removeEventListener("message", handleMessage);
     };
-  }, []);
-
-  // const handleAddMarker = (newRegion) => {
-  //   setRegion(newRegion);
-  // };
+  }, [markerTo, region]);
 
   return (
     <>
@@ -107,7 +106,10 @@ const MapView = () => {
           url="http://171.247.51.237/map/{z}/{x}/{y}.png"
         />
         <Marker position={[region.latitude, region.longitude]} />
-        <MapComponent region={region} />
+        {markerTo && (
+          <Marker position={[markerTo.latitude, markerTo.longitude]} />
+        )}
+        <MapComponent region={region} markerTo={markerTo} />
       </MapContainer>
     </>
   );
