@@ -81,7 +81,10 @@ const MapView = () => {
                   setRegion(newRegion);
                   return
                 }
-                setMarkerTo(newRegion);
+                else {
+                  setMarkerTo(newRegion);
+                  return
+                }
 
                 console.log("searchLocation", newRegion);
               } else {
