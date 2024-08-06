@@ -79,11 +79,11 @@ const MapView = () => {
                 // Set the new region
                 if (queryType === "from") {
                   setRegion(newRegion);
-                  return
+
                 }
                 else {
                   setMarkerTo(newRegion);
-                  return
+
                 }
 
                 console.log("searchLocation", newRegion);
