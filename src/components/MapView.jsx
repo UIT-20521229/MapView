@@ -9,12 +9,12 @@ const MapComponent = ({ region, markerTo, setPoliLine }) => {
   const map = useMap();
   useEffect(() => {
     map.panTo([region.latitude, region.longitude], 20);
-  }, [region]);
+  }, [region, markerTo]);
 
   useEffect(() => {
     if (!markerTo) return;
     const fetchRoute = async () => {
-      await fetch(`http://171.247.51.237:5000/route/v1/driving/${region.longitude},${region.latitude};${markerTo.longitude},${markerTo.latitude}?geometries=geojson&alternatives=true&overview=full`, {
+      await fetch(`http://171.247.40.70:5000/route/v1/driving/${region.longitude},${region.latitude};${markerTo.longitude},${markerTo.latitude}?geometries=geojson&alternatives=true&overview=full`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       })
@@ -30,7 +30,7 @@ const MapComponent = ({ region, markerTo, setPoliLine }) => {
       [region.latitude, region.longitude],
       [markerTo.latitude, markerTo.longitude],
     ]);
-  }, [markerTo]);
+  }, [markerTo, region]);
 
   return null;
 };
@@ -56,8 +56,9 @@ const MapView = () => {
           setRegion(newRegion);
         } else if (message.type === "searchLocation") {
           const query = message.query;
+          const queryType = message.queryType
           if (query) {
-            const response = await fetch(`http://171.247.51.237/nominatim/search?q=${query}&format=json`, {
+            const response = await fetch(`http://171.247.40.70/nominatim/search?q=${query}&format=json`, {
               method: "GET",
               headers: { "Content-Type": "application/json" },
             });
@@ -76,9 +77,13 @@ const MapView = () => {
                 };
 
                 // Set the new region
-                // setRegion(newRegion);
-                console.log("searchLocation", newRegion);
+                if (queryType === "from") {
+                  setRegion(newRegion);
+                  return
+                }
                 setMarkerTo(newRegion);
+
+                console.log("searchLocation", newRegion);
               } else {
                 console.error("No data returned from the API");
               }
@@ -111,7 +116,7 @@ const MapView = () => {
         zoomControl={false}
         className="map"
       >
-        <TileLayer url="http://171.247.51.237/map/{z}/{x}/{y}.png" />
+        <TileLayer url="http://171.247.40.70/map/{z}/{x}/{y}.png" />
         <Marker position={[region.latitude, region.longitude]} />
         {markerTo && (
           <>
