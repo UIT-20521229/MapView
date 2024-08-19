@@ -14,7 +14,7 @@ const MapComponent = ({ region, markerTo, setPoliLine }) => {
   useEffect(() => {
     if (!markerTo) return;
     const fetchRoute = async () => {
-      await fetch(`http://171.247.36.114:5000/route/v1/driving/${region.longitude},${region.latitude};${markerTo.longitude},${markerTo.latitude}?geometries=geojson&alternatives=true&overview=full`, {
+      await fetch(`http://171.244.143.125:5000/route/v1/driving/${region.longitude},${region.latitude};${markerTo.longitude},${markerTo.latitude}?geometries=geojson&alternatives=true&overview=full`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       })
@@ -58,7 +58,7 @@ const MapView = () => {
           const query = message.query;
           const queryType = message.queryType
           if (query) {
-            const response = await fetch(`http://171.247.36.114/nominatim/search?q=${query}&format=json`, {
+            const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${query}&format=json`, {
               method: "GET",
               headers: { "Content-Type": "application/json" },
             });
@@ -119,7 +119,7 @@ const MapView = () => {
         zoomControl={false}
         className="map"
       >
-        <TileLayer url="http://171.247.36.114/map/{z}/{x}/{y}.png" />
+        <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <Marker position={[region.latitude, region.longitude]} />
         {markerTo && (
           <>
